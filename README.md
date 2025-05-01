@@ -7,4 +7,4 @@
 
 ### 📷 Main Menu
 This is the main menu of the application:
-![Main Menu](<Screenshot 2025-05-01 151603-3.png>)
+![Main Menu](Screenshot 2025-05-01 151603.png)
