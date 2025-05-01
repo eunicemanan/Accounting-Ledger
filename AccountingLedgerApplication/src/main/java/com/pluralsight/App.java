@@ -1,27 +1,28 @@
 package com.pluralsight;
-
+//Import essential tools
 import java.io.*;
 import java.time.*;
 import java.time.format.DateTimeParseException;
 import java.util.*;
-
+//This is the man app where the whole program runs
 public class App {
+    //Declares where the program will save and load the transaction data
+    private static final String FILE_PATH = "dataFiles/transactions.csv"; // accessing .csv file through directory
 
-    private static final String FILE_PATH = "dataFiles/transactions.csv";
-
+    // Main method
     public static void main(String[] args) {
-        Scanner input = new Scanner(System.in);
-        boolean running = true;
+        Scanner input = new Scanner(System.in); // allows user input
+        boolean running = true; // if true continue
         createCsvIfNotExist();
 
         while (running) {
             showMenu();
             String choice = input.nextLine().toUpperCase();
 
-            switch (choice) {
+            switch (choice) { // if not x, try this, if not this, try y etc.
                 case "D":
                     addTransaction(input, true);
-                    break;
+                    break; // end
                 case "P":
                     addTransaction(input, false);
                     break;
@@ -41,7 +42,7 @@ public class App {
     }
 
     private static void showMenu() {
-        System.out.println("\n--- Accounting Menu ---\n");
+        System.out.println("\n--- Accounting Menu ---\n"); // Displays the menu to the user!
         System.out.println("    (D) Add Deposit");
         System.out.println("    (P) Add Payment");
         System.out.println("    (L) View Ledger");
@@ -49,7 +50,10 @@ public class App {
         System.out.print("    Choose an option:  ");
     }
 
+    // Java methpod that adds new transaction into CSV file
     private static void addTransaction(Scanner input, boolean isDeposit) {
+        //If isDeposit is true → use "Add Deposit"
+        //If isDeposit is false → use "Add Payment"
         System.out.println(isDeposit ? "\n--- Add Deposit ---" : "\n--- Add Payment ---");
         System.out.print("Description: ");
         String description = input.nextLine();
@@ -65,11 +69,11 @@ public class App {
         String time = LocalTime.now().withNano(0).toString(); // remove nanoseconds
         String entry = String.format("%s|%s|%s|%s|%.2f", date, time, description, vendor, amount);
 
-        writeToCsv(entry);
+        writeToCsv(entry); // take this transaction and save it to the file
         System.out.println("\nTransaction Accepted!");
     }
 
-    private static void viewLedger(Scanner input) {
+    private static void viewLedger(Scanner input) { // displays a report menu
         boolean viewing = true;
 
         while (viewing) {
@@ -82,7 +86,8 @@ public class App {
             System.out.print("     Choose an option: ");
 
             String choice = input.nextLine().toUpperCase();
-            List<String> lines = readFromCsv();
+            List<String> lines = readFromCsv(); // "Make a list of lines by reading them from the CSV file."
+
 
             switch (choice) {
                 case "A":
@@ -151,10 +156,18 @@ public class App {
         }
     }
 
-    private static void printFiltered(List<String> lines, String type) {
-        for (String line : lines) {
-            String[] parts = line.split("\\|");
-            double amount = Double.parseDouble(parts[4]);
+    private static void printFiltered(List<String> lines, String type) { // reads every line from .csv
+        for (String line : lines) {                                      // Filters each line based on report type
+            String[] parts = line.split("\\|"); // Uses pipes to split a line from my .csv file
+            if (parts.length < 5) continue; //This skips any lines that don’t have at least 5 sections.
+                                            //Prevents errors from broken or incomplete lines.
+
+            double amount;
+            try {
+                amount = Double.parseDouble(parts[4].replace(",", "")); // removes ,
+            } catch (NumberFormatException e) {
+                continue; // skip lines with bad amount format
+            }
 
             if (type.equals("ALL") ||
                     (type.equals("DEPOSIT") && amount > 0) ||
@@ -236,7 +249,7 @@ public class App {
         List<String> lines = readFromCsv();
         System.out.println("\n--- Transactions for Vendor: " + vendor + " ---");
         for (String line : lines) {
-            String[] parts = line.split("\\|");
+            String[] parts = line.split("\\|"); // parts.length is how it seperates the data and
             if (parts.length >= 4 && parts[3].equalsIgnoreCase(vendor)) {
                 System.out.println(line);
             }
@@ -248,13 +261,14 @@ public class App {
         for (String line : lines) {
             String[] parts = line.split("\\|");
             try {
-                LocalDate date = LocalDate.parse(parts[0].trim());
-                if (!date.isBefore(start) && !date.isAfter(end)) {
+                LocalDate date = LocalDate.parse(parts[0]);
+                if ((date.isEqual(start) || date.isAfter(start)) && (date.isEqual(end) || date.isBefore(end))) {
                     System.out.println(line);
                 }
-            } catch (DateTimeParseException e) {
-                System.out.println("Invalid date format in: " + line);
+            } catch (DateTimeParseException | ArrayIndexOutOfBoundsException e) {
+                System.out.println("Skipping invalid line: " + line);
             }
         }
     }
 }
+

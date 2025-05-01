@@ -1,13 +1,16 @@
 package com.pluralsight;
 
-public class ledger {
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+
+public class Ledger {
     private LocalDateTime dateTime;
     private String description;
     private String vendor;
     private double amount;
 
     // Constructor
-    public Transaction(LocalDateTime dateTime, String description, String vendor, double amount) {
+    public Ledger(LocalDateTime dateTime, String description, String vendor, double amount) {
         this.dateTime = dateTime;
         this.description = description;
         this.vendor = vendor;
