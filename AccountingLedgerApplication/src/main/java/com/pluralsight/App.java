@@ -166,28 +166,29 @@ public class App {
             try {
                 amount = Double.parseDouble(parts[4].replace(",", "")); // removes ,
             } catch (NumberFormatException e) {
-                continue; // skip lines with bad amount format
+                continue; // skip lines with bad amount format i.e. abc isn't a number.
             }
 
-            if (type.equals("ALL") ||
-                    (type.equals("DEPOSIT") && amount > 0) ||
-                    (type.equals("PAYMENT") && amount < 0)) {
-                System.out.println(line);
+            if (type.equals("ALL") || // Show both deposit and payment
+                    (type.equals("DEPOSIT") && amount > 0) || // deposit - greater than 0
+                    (type.equals("PAYMENT") && amount < 0)) { // payment - less than 0
+                System.out.println(line); // prints from CSV file
             }
         }
     }
-
-    private static void writeToCsv(String line) {
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(FILE_PATH, true))) {
+// private (only usable in this class) and static (no object needed to use it)
+    private static void writeToCsv(String line) { // method than writes one line to the CSV file
+        //Opens the file named in FILE_PATH - Line 10)
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(FILE_PATH, true))) { // add to file not erase
             writer.write(line);
-            writer.newLine();
-        } catch (IOException e) {
+            writer.newLine(); // Ensures the next line written isn't glued to the previous one
+        } catch (IOException e) { // i.e. file location invalid or unavailable
             System.out.println("Failed to write to file.");
         }
     }
 
-    private static List<String> readFromCsv() {
-        List<String> lines = new ArrayList<>();
+    private static List<String> readFromCsv() { // method
+        List<String> lines = new ArrayList<>(); // Creates an empty list called "lines" to store each line from the file
         try (BufferedReader reader = new BufferedReader(new FileReader(FILE_PATH))) {
             String line;
             while ((line = reader.readLine()) != null) {
